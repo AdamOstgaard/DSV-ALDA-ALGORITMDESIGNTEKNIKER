@@ -9,7 +9,7 @@ public class Main {
         
         ArrayList<Integer> l = new ArrayList<>();
 
-        for (int i = 10; i > 0; i--) {
+        for (int i = 100; i > 0; i--) {
             l.add(i);
         }
 

@@ -11,6 +11,9 @@ public class SkipListNode<T extends Comparable<T>> {
 
     private SkipListNode<T>[] skipLinksBackwards;
 
+    /**
+     * The owning {@link SkipList}
+     */
     private SkipList<T> owner;
 
     private int height;
@@ -18,39 +21,30 @@ public class SkipListNode<T extends Comparable<T>> {
     private T data;
 
     /**
-     * Creates a new {@link SkipListNode} and builds it nodelinks.
+     * Creates a new {@link SkipListNode}.
      * @param item the data contained in the node.
      * @param height the number of possible skiplinks.
-     * @param previousNode the node of which the new node should be placed after. Should be null if the node is the first node in the list.
-     * @param nextNode the node after the new node. Should be null if the node is the last one in the list.
-     * @param owner the owning {link SkipList}
      */
-    protected SkipListNode(T item, int height, SkipListNode<T> previousNode, SkipListNode<T> nextNode, SkipList<T> owner) {
+    protected SkipListNode(T item, int height) {
         this.skipLinksForwards = new SkipListNode[height];
         this.skipLinksBackwards = new SkipListNode[height];
-        this.setData(item);
+        this.data = item;
         this.height = height;
-        this.owner = owner;
-        buildNodes(previousNode, nextNode);
     }
     
     /**
-     * @return the owning list.
+     * @return the owning {@link SkipList}
      */
     public SkipList<T> getOwner() {
         return owner;
     }
 
     /**
-     * @return the data
+     * @return the data of the node.
      */ 
     public T getData() {
         return data;
     }
-
-    private void setData(T data) {
-        this.data = data;
-    } 
 
     /**
      * @return the zero-based height of the node 
@@ -58,28 +52,56 @@ public class SkipListNode<T extends Comparable<T>> {
     public int getHeight() {
         return height - 1;
     }
-
+    
+    /**
+     * Adds the node to the provided {@link SkipList} and builds its skipreferences
+    * @param previousNode the node of which the new node should be placed after. Should be null if the node is the first node in the list.
+    * @param nextNode the node after the new node. Should be null if the node is the last one in the list.
+    * @param owner the owning {link SkipList}
+    */
+    protected void addToList(SkipListNode<T> previousNode, SkipListNode<T> nextNode, SkipList<T> owner) {
+        this.owner = owner;
+        buildNodes(previousNode, nextNode);
+    }
+    
+    /**
+     * Follows the skiplink at the proivided level.
+     * @param skiplevel the level at which the jump will occur
+     */
     private SkipListNode<T> getNextNode(int skipLevel) {
         return skipLinksForwards[skipLevel];
     }
 
+    
+    /**
+     * Follows the backwards skiplink at the proivided level.
+     * @param skiplevel the level at which the jump will occur
+     */
     private SkipListNode<T> getPreviousNode(int skipLevel) {
         return skipLinksBackwards[skipLevel];
     }
 
+    /**
+     * gets the next element at base level in the list.
+     */
     public SkipListNode<T> getNextNode() {
         return getNextNode(0);
     }
 
+    
+    /**
+     * gets the previous element at base level in the list.
+     */
     public SkipListNode<T> getPreviousNode() {
         return getPreviousNode(0);
     }
+
     /**
      * Jumps as far as possible without passing the data provided.
      * @param data the data to be used to compare against. 
      * @return the {@link SkipListNode} furthest away or null if no movement is viable.
      */
-    public SkipListNode<T> greedyJump(T data) {
+    protected SkipListNode<T> greedyJump(T data) {
         for (int i = getHeight(); i >= 0; i--) {
             SkipListNode<T> tempNode = getNextNode(i);
             if (tempNode != null && tempNode.getData().compareTo(data) <= 0) {
@@ -91,11 +113,11 @@ public class SkipListNode<T extends Comparable<T>> {
 
 
     /**
-     * Jumps as far backwards from this node as possible without passing the element in the list.
+     * Jumps as far backwards from this node as possible without passing the data in the list.
      * @param data the data to be used to compare against. 
      * @return the element furthest away or null if no movement is viable.
      */
-    public SkipListNode<T> greedyBackwardsJump(T data) {
+    protected SkipListNode<T> greedyBackwardsJump(T data) {
         for (int i = getHeight(); i >= 0; i--) {
             SkipListNode<T> tempNode = getPreviousNode(i);
             if (tempNode != null && tempNode.getData().compareTo(data) <= 0) {
@@ -106,11 +128,11 @@ public class SkipListNode<T extends Comparable<T>> {
     }
 
     /**
-     * Finds the highest previous node with the same height or higher than the current node
-     * @return the highest {@link SkipListNode} possible to jump to backwards from this node.
+     * Makes the longest possible jump.
+     * @return the element furthest away or null if no movement is viable.
      */
-    public SkipListNode<T> greedyBackwardsJump() {
-        for (int i = getHeight(); i > 0; i--) {
+    protected SkipListNode<T> greedyBackwardsJump() {
+        for (int i = getHeight(); i >= 0; i--) {
             SkipListNode<T> tempNode = getPreviousNode(i);
             if (tempNode != null) {
                 return tempNode;
@@ -120,11 +142,11 @@ public class SkipListNode<T extends Comparable<T>> {
     }
 
      /**
-     * Finds the highest previous node with the same height or higher than the current node
-     * @return the highest {@link SkipListNode} possible to jump to forwards from this node.
+     * Makes the longest possible jump.
+     * @return the highest furthest away node from this this node.
      */
-    public SkipListNode<T> greedyJump() {
-        for (int i = getHeight(); i > 0; i--) {
+    protected SkipListNode<T> greedyJump() {
+        for (int i = getHeight(); i >= 0; i--) {
             SkipListNode<T> tempNode = getNextNode(i);
             if (tempNode != null) {
                 return tempNode;
@@ -143,6 +165,10 @@ public class SkipListNode<T extends Comparable<T>> {
         rebuildFollowingNodeList(nextNode);
     }
 
+    /**
+     * Rebuilds the references for all backwards skiplinks for this node.
+     * @param referenceNode the node of which the new node should be placed before. Should be null if the node is the first node in the list.
+     */
     protected void rebuildPreviousNodeLinks(SkipListNode<T> referenceNode) {
         // this node is the first node in the list
         if(referenceNode == null){
@@ -157,7 +183,7 @@ public class SkipListNode<T extends Comparable<T>> {
             previousMaxHight++;
         }
 
-        SkipListNode<T> tempNode = referenceNode.getPreviousNode(0);
+        SkipListNode<T> tempNode = referenceNode.greedyBackwardsJump();
 
         for (int i = previousMaxHight; i <= getHeight();) {
             if (tempNode == null) {
@@ -170,17 +196,17 @@ public class SkipListNode<T extends Comparable<T>> {
                 skipLinksBackwards[i] = tempNode;
                 i++;
             } else {
-                tempNode = tempNode.getPreviousNode(0);
+                tempNode = tempNode.greedyBackwardsJump();
             }
         }
     }
     
     /**
-     * Rebuilds the referencearray for this node.
+     * Rebuilds the references for all following skiplinks for this node.
      * @param referenceNode reference to the node which this node should be placed before or null if this is the last node in the list.  
      */
     protected void rebuildFollowingNodeList(SkipListNode<T> referenceNode) {  
-        // this node is the last node in the list
+        // this node is the last node in the list, remove all links!
         if(referenceNode == null){
             skipLinksForwards = new SkipListNode[height];
             return;
@@ -188,13 +214,14 @@ public class SkipListNode<T extends Comparable<T>> {
 
         int previousMaxHight = 0;
 
+        //add references to the reference node
         for (int i = 0; i <= Math.min(referenceNode.getHeight(), getHeight()); i++) {
             referenceNode.skipLinksBackwards[i] = this;
             skipLinksForwards[i] = referenceNode;
             previousMaxHight++;
         }
  
-        SkipListNode<T> tempNode = referenceNode.getNextNode(0);
+        SkipListNode<T> tempNode = referenceNode.greedyJump();
 
         for (int i = previousMaxHight; i <= getHeight();) {
             if (tempNode == null) {
@@ -207,11 +234,12 @@ public class SkipListNode<T extends Comparable<T>> {
                 skipLinksForwards[i] = tempNode;
                 i++;
             } else {
-                tempNode = tempNode.getNextNode(0);
+                tempNode = tempNode.greedyJump();
             }
         }
     }
 
+    //#region Debugging 
     @Override
     public String toString() {
         return "-----------\nData: " + this.data.toString() + "\n" + "height: " + height + "\n" + 
@@ -232,8 +260,9 @@ public class SkipListNode<T extends Comparable<T>> {
             if (var == null) {
                 continue;
             }
-            s += "\tData: " + var.getData().toString() + " height: " + (var.getHeight() +1)  + " \n";
+            s += "\tData: " + var.getData().toString() + " height: " + (var.getHeight() + 1) + " \n";
         }
         return s;
     }
+    //#endregion Debugging
 }
