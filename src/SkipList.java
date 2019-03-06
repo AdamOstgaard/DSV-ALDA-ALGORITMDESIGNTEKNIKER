@@ -1,9 +1,10 @@
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * A sorted generic skiplist.
  */
-public class SkipList<T extends Comparable<T>> {
+public class SkipList<T extends Comparable<T>> implements Iterable {
     private SkipListNode<T> head;
     private int maxHeight;
     private int count;
@@ -18,7 +19,9 @@ public class SkipList<T extends Comparable<T>> {
 
     /**
      * creates a new skiplist empty with the maxheight provided.
-     * @param maxHeight the maxheight used when generating the linkarrays for the nodes. The higher the height the longer the possible jumps. 
+     * 
+     * @param maxHeight the maxheight used when generating the linkarrays for the
+     *                  nodes. The higher the height the longer the possible jumps.
      */
     public SkipList(int maxHeight) {
         this.maxHeight = maxHeight;
@@ -26,22 +29,27 @@ public class SkipList<T extends Comparable<T>> {
     }
 
     /**
-     * creates a new skiplist with the default maxHeight (16) and adds the provided items to the list.
+     * creates a new skiplist with the default maxHeight (16) and adds the provided
+     * items to the list.
+     * 
      * @param collection the items to be added in the initial list.
      */
     public SkipList(Collection<T> collection) {
         this();
-        addRange(collection);
+        addAll(collection);
     }
-    
+
     /**
-     * creates a new skiplist with the maxheight provided and adds the provided items to the list.
-     * @param maxHeight the maxheight used when generating the linkarrays for the nodes. The higher the height the longer the possible jumps. 
+     * creates a new skiplist with the maxheight provided and adds the provided
+     * items to the list.
+     * 
+     * @param maxHeight  the maxheight used when generating the linkarrays for the
+     *                   nodes. The higher the height the longer the possible jumps.
      * @param collection the items to be added in the initial list.
      */
     public SkipList(Collection<T> collection, int maxHeight) {
         this(maxHeight);
-        addRange(collection);
+        addAll(collection);
     }
 
     /**
@@ -50,24 +58,24 @@ public class SkipList<T extends Comparable<T>> {
     public int getCount() {
         return count;
     }
-    
+
     /**
      * Adds the collection of items to the list.
+     * 
      * @param collection the items to be added.
      */
-    public void addRange(Collection<T> collection) {
+    public void addAll(Collection<T> collection) {
         for (T item : collection) {
             this.add(item);
         }
     }
-
     /**
      * Add a {@link SkipListNode} to the list at the specified index.
      * @param index The index at which the element will be placed.
      */
     public void add(T data) {
         count++;
-
+        
         SkipListNode<T> nodeBefore = findLargestSmallerElement(data);
         SkipListNode<T> nodeAfter = nodeBefore == null ? head : nodeBefore.getNextNode();
         SkipListNode<T> newNode = new SkipListNode<T>(data, heightGenerator.getHeight());
@@ -79,6 +87,7 @@ public class SkipList<T extends Comparable<T>> {
 
     /**
      * Removes the first occurance of the data in the list if there is one.
+     * 
      * @param element the element to be removed
      */
     public void remove(T element) {
@@ -89,8 +98,14 @@ public class SkipList<T extends Comparable<T>> {
         removeNode(node);
     }
 
+    protected SkipListNode<T> getHead() {
+        return head;
+    }
+
     /**
-     * Removes the node from the list and rebuilds the links for the surrounding nodes.
+     * Removes the node from the list and rebuilds the links for the surrounding
+     * nodes.
+     * 
      * @param node the node to be removed.
      * @throws NodeDoesNotExistException thrown if the node is not part of the list.
      */
@@ -101,13 +116,15 @@ public class SkipList<T extends Comparable<T>> {
         if (previousNode == null) {
             head = followingNode;
         }
-        
+
         previousNode.rebuildFollowingNodeList(followingNode);
         followingNode.rebuildPreviousNodeLinks(previousNode);
     }
 
     /**
-     * Searches the skiplist for the data and returns the {@link SkipListNode} containing it, if one exists.
+     * Searches the skiplist for the data and returns the {@link SkipListNode}
+     * containing it, if one exists.
+     * 
      * @return the element or null if the element does not exist in the list.
      */
     private SkipListNode<T> findNode(T data) {
@@ -123,8 +140,11 @@ public class SkipList<T extends Comparable<T>> {
     }
 
     /**
-     * Searches the skiplist for the largest element that is still smaller than the provided data. 
-     * @return the {@link SkipListNode} that would be right before the data if it were a part of the list
+     * Searches the skiplist for the largest element that is still smaller than the
+     * provided data.
+     * 
+     * @return the {@link SkipListNode} that would be right before the data if it
+     *         were a part of the list
      * @param data data to be used as comparaer when searching the list.
      */
     private SkipListNode<T> findLargestSmallerElement(T data) {
@@ -144,11 +164,18 @@ public class SkipList<T extends Comparable<T>> {
         }
         return prevNode;
     }
-    
-    //#region Debugging
+
+    // #region Debugging
     @Override
     public String toString() {
         return "maxHeight: " + maxHeight + " Count: " + count + "\n" + head.toString();
     }
-    //#endregion
+    // #endregion
+
+    @Override
+    public Iterator<T> iterator() {
+        return new SkipListIterator<T>(this);
+    }
+
+
 }

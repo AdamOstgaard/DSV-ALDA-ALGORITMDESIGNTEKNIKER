@@ -13,7 +13,7 @@ public class Main {
             l.add(i);
         }
 
-        sl.addRange(l);
+        sl.addAll(l);
 
         sl.remove(l.get(5));
 
