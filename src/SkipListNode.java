@@ -246,6 +246,9 @@ public class SkipListNode<T extends Comparable<T>> {
                  getSkipLinksString() + (getNextNode() != null ? getNextNode().toString() : "") ;
     }
 
+    /**
+     * Returns a debugging string
+     */
     private String getSkipLinksString() {
         String s = "Can jump forward to: \n ";
         for (SkipListNode<T> var : skipLinksForwards) {

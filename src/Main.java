@@ -1,11 +1,8 @@
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
         SkipList<Integer> sl = new SkipList<>(8);
-
-        Random rand = new Random();
         
         ArrayList<Integer> l = new ArrayList<>();
 
