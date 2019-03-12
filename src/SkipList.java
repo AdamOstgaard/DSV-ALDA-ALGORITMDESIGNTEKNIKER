@@ -4,10 +4,13 @@ import java.util.Iterator;
 /**
  * A sorted generic skiplist.
  */
-public class SkipList<T extends Comparable<T>> implements Iterable {
+public class SkipList<T extends Comparable<T>> implements Iterable<Comparable<T>> {
     private SkipListNode<T> head;
     private int maxHeight;
     private int count;
+    /**
+     * Shared number generator for the list to provide the probabilities for each element in the array.
+     */
     private HeightGenerator heightGenerator;
 
     /**
@@ -76,7 +79,7 @@ public class SkipList<T extends Comparable<T>> implements Iterable {
     public void add(T data) {
         count++;
         
-        SkipListNode<T> nodeBefore = findLargestSmallerElement(data);
+        SkipListNode<T> nodeBefore = findElementBefore(data);
         SkipListNode<T> nodeAfter = nodeBefore == null ? head : nodeBefore.getNextNode();
         SkipListNode<T> newNode = new SkipListNode<T>(data, heightGenerator.getHeight());
         newNode.addToList(nodeBefore, nodeAfter, this);
@@ -147,9 +150,10 @@ public class SkipList<T extends Comparable<T>> implements Iterable {
      *         were a part of the list
      * @param data data to be used as comparaer when searching the list.
      */
-    private SkipListNode<T> findLargestSmallerElement(T data) {
+    private SkipListNode<T> findElementBefore(T data) {
         SkipListNode<T> currentNode = head;
 
+        // Check if the node should be first in the list and return null if it is.
         if (currentNode != null && currentNode.getData().compareTo(data) > 0) {
             return null;
         }
@@ -173,7 +177,7 @@ public class SkipList<T extends Comparable<T>> implements Iterable {
     // #endregion
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<Comparable<T>> iterator() {
         return new SkipListIterator<T>(this);
     }
 

@@ -84,7 +84,7 @@ public class SkipListNode<T extends Comparable<T>> {
     /**
      * gets the next element at base level in the list.
      */
-    public SkipListNode<T> getNextNode() {
+    protected SkipListNode<T> getNextNode() {
         return getNextNode(0);
     }
 
@@ -92,7 +92,7 @@ public class SkipListNode<T extends Comparable<T>> {
     /**
      * gets the previous element at base level in the list.
      */
-    public SkipListNode<T> getPreviousNode() {
+    protected SkipListNode<T> getPreviousNode() {
         return getPreviousNode(0);
     }
 
@@ -109,6 +109,7 @@ public class SkipListNode<T extends Comparable<T>> {
             }
         }
         return null;
+        
     }
 
 

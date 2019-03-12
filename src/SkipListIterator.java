@@ -1,6 +1,6 @@
 import java.util.Iterator;
 
-public class SkipListIterator<T extends Comparable<T>> implements Iterator<T> { 
+public class SkipListIterator<T extends Comparable<T>> implements Iterator<Comparable<T>> { 
     private SkipList<T> skiplist;
     private SkipListNode<T> skiplistNode = null; 
 

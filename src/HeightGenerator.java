@@ -12,7 +12,7 @@ public class HeightGenerator {
     * @param seed the seed to use as argument for the random number generator
     */
     public HeightGenerator(long seed) {
-    this(seed, DEFAULT_MAX_HEIGHT);
+        this(seed, DEFAULT_MAX_HEIGHT);
     }
     
     /**
